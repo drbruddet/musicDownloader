@@ -30,7 +30,14 @@ app.get('/', (request, response) => {
     totalLength = totalLength;
   });
 
-  ffmpeg()
+  try {
+    const fileName = sourceTitle + '.' + SOURCE_FORMAT;
+
+    response.setHeader('Content-Disposition', 'attachment; filename=' + fileName);
+    response.setHeader('Content-Length', totalLength);
+    response.setHeader('Content-type', 'audio/mpeg')
+
+    ffmpeg()
     .input(stream)
     .withAudioCodec(CODEC)
     .toFormat(DESTINATION_FORMAT)
@@ -44,6 +51,13 @@ app.get('/', (request, response) => {
       console.log('Processing: ' + progress.targetSize + ' KB converted')
     })
     .pipe(response);
+    
+  } catch (error) {
+    res.end(error);
+    res.status(500);
+  }
+
+  
 });
 
 app.listen(port, hostname, (error) => {
