@@ -1,3 +1,4 @@
+'use strict'
 const path    = require('path')
 const express = require('express')
 const fs      = require('fs')
@@ -10,17 +11,18 @@ const port = 3000
 
 const url = 'https://www.youtube.com/watch?v=kK4D5R-0mY0'
 
-app.get('/', (request, response) => {
-  // SET TITLE
+const setHeaders = (response) => {
   ytdl.getInfo(url, function(err, info) {
     if (err) throw err
     response.setHeader('Content-disposition', 'attachment; filename=' + info.title + '.mp3')
     response.setHeader('Content-type', 'audio/mpeg')
   })
+}
+
+const downloadVideo = (request, response) => {
+  setHeaders(response)
   // GET VIDEO AND TRANSFORM IT TO AUDIO
-  const source = ytdl(url, { filter: (f) => {
-    return f.container === 'mp4' && !f.encoding; }
-  })
+  const source = ytdl(url, { filter: (f) => f.container === 'mp4' && !f.encoding })
   const sound = ffmpeg({ source: source })
   sound.withAudioCodec('libmp3lame')
   sound.toFormat('mp3')
@@ -35,7 +37,9 @@ app.get('/', (request, response) => {
   sound.on('progress', (progress) => {
     console.log('Processing: ' + progress.targetSize + ' KB converted')
   })
-})
+}
+
+app.get('/', downloadVideo)
 
 app.listen(port, hostname, (error) => {
   if (error) {
