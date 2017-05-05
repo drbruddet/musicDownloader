@@ -28,9 +28,15 @@ app.get('/', (request, response) => {
   })
 
   try {
+
     getMediaTitle(url, function(title) {
-      response.setHeader('Content-Disposition', 'attachment; filename=' + title + '.' + DESTINATION_FORMAT);
-      response.setHeader('Content-type', 'audio/mpeg')
+      const formatTitle = title + '.' + DESTINATION_FORMAT
+      response.writeHead(200, {
+        'Content-Type': 'audio/mpeg',
+        'Content-Disposition': 'attachment; filename=' + formatTitle,
+        'Access-Control-Allow-Origin': 'http://localhost:8080'
+        //'Content-Length': length
+      })
     })
 
     ffmpeg()
@@ -38,19 +44,19 @@ app.get('/', (request, response) => {
     .withAudioCodec(CODEC)
     .toFormat(DESTINATION_FORMAT)
     .on('error', (err) => {
-      console.log('an error happened: ' + err.message)
+      console.log('ffmpeg Error: ' + err.message)
     })
     .on('progress', (progress) => {
-      console.log('Processing: ' + progress.targetSize + ' KB converted')
+      console.log('ffmpeg Processing: ' + progress.targetSize + ' KB converted')
     })
     .on('end', () => {
-      console.log('DOWNLOAD FINISHED\n')
+      console.log('ffmpeg : DOWNLOAD FINISHED\n')
     })
-    .pipe(response);
+    .pipe(response, {end:true});
 
   } catch (error) {
-    res.end(error);
-    res.status(500);
+    response.end(error);
+    response.status(500);
   }
 });
 
