@@ -1,36 +1,48 @@
 const ffmpeg  = require('fluent-ffmpeg');
 const chalk   = require('chalk')
-const Promise = require('bluebird')
 const logger  = require('./logger.constant')
 
-const videoConverter = {
+class VideoConverter {
 
-    convertToMp3: (sourceFile) => {
+    static destinationFormat() { return 'mp3' };
+    static codec() { return 'libmp3lame' };
 
-        const DESTINATION_FORMAT = 'mp3';
-        const CODEC = 'libmp3lame';
+    constructor() {
+        console.log('video converter')
+    }
+
+    convert(
+        sourceFile,
+        options = {
+           format: VideoConverter.destinationFormat(),
+           codec: VideoConverter.codec()
+        }
+    ) {
+
+        if (!sourceFile) {
+            throw new Error('Source is mandatory to convert a file.')
+        }
 
         console.log(chalk.green('Finished to write temp file on disk: ') + chalk.bold(sourceFile))
-        console.log(chalk.blue('Starting conversion to ') + chalk.bold(DESTINATION_FORMAT) + ' ...')
+        console.log(chalk.blue('Starting conversion to ') + chalk.bold(VideoConverter.destinationFormat()) + ' ...')
 
-        return new Promise(function(resolve, reject) {
-            ffmpeg()
+        const readableStream = ffmpeg()
             .input(sourceFile)
-            .withAudioCodec(CODEC)
-            .toFormat(DESTINATION_FORMAT)
+            .withAudioCodec(options.codec)
+            .toFormat(options.format)
             .on('progress', (progress) => {
                 console.log(chalk.blue('ffmpeg processing ... ' + chalk.bold(progress.targetSize + 'KB') + ' converted'))
             })
             .on('error', (err) => {
                 console.log(chalk.red('ffmpeg Error: ' + chalk.bold(err.message)))
-                reject(err)
             })
             .on('end', () => {
-                resolve()
+                console.log(chalk.green('ffmpeg conversion ' + chalk.bold('done')))
             })
-        })
+
+        return readableStream;
     }
 
 };
 
-module.exports = videoConverter;
+module.exports = VideoConverter;
