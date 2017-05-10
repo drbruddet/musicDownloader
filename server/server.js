@@ -24,11 +24,10 @@ app.get('/', (request, response) => {
 
     const tempFilePath = __dirname + '/youtube-video.' + SOURCE_FORMAT;
     const target = request.query.url || 'https://www.youtube.com/watch?v=P4j3nCcMJfM'; // default value for dev
-    const destinationFormat = request.params.format || 'mp3';
-    console.log(request.params)
+    const destinationFormat = request.query.format || 'mp3';
     try {
         VideoDownloaderService
-            .youtube(target)
+            .youtube(target, {format: destinationFormat})
             .pipe(fs.createWriteStream(tempFilePath))
             .on('finish', () => {
                 // write head
