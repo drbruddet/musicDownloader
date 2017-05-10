@@ -3,11 +3,10 @@ const express = require('express')
 const fs      = require('fs')
 const chalk   = require('chalk')
 
-const logger           = require('./utils/logger.constant')
 const VideoConverter   = require('./utils/videoConverter')
 const VideoDownloader  = require('./utils/videoDownloader')
 
-var url = require("url")
+var url = require('url')
 
 const app = express()
 const hostname = '127.0.0.1'
@@ -26,7 +25,7 @@ app.get('/', (request, response) => {
 
     try {
         VideoDownloaderService
-            .youtube(target)
+            .youtube(target, {format: destinationFormat})
             .pipe(fs.createWriteStream(tempFilePath))
             .on('finish', () => {
                 // write head
@@ -54,5 +53,5 @@ app.get('/', (request, response) => {
 
 app.listen(port, hostname, (error) => {
     if (error) return console.error(error)
-    console.log(`Server running at http://${hostname}:${port}/`)
+    console.log(chalk.cyan(`Server running at http://${hostname}:${port}/`))
 })

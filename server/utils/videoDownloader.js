@@ -1,5 +1,4 @@
 const chalk   = require('chalk')
-const logger  = require('./logger.constant')
 const ytdl    = require('ytdl-core')
 
 class VideoDownloader {
@@ -10,6 +9,7 @@ class VideoDownloader {
 
     youtube(target) {
         const SOURCE_FORMAT = 'mp4';
+
         return ytdl(target, {
             filter: (format) => format.container === SOURCE_FORMAT && !format.encoding
         })

@@ -1,6 +1,5 @@
-const ffmpeg  = require('fluent-ffmpeg');
 const chalk   = require('chalk')
-const logger  = require('./logger.constant')
+const ffmpeg  = require('fluent-ffmpeg');
 
 class VideoConverter {
 
@@ -8,7 +7,7 @@ class VideoConverter {
     static codec() { return 'libmp3lame' };
 
     constructor() {
-        console.log('video converter')
+        console.log(chalk.cyan('video converter'))
     }
 
     convert(
@@ -23,7 +22,6 @@ class VideoConverter {
             throw new Error('Source is mandatory to convert a file.')
         }
 
-        console.log(chalk.green('Finished to write temp file on disk: ') + chalk.bold(sourceFile))
         console.log(chalk.blue('Starting conversion to ') + chalk.bold(VideoConverter.destinationFormat()) + ' ...')
 
         const readableStream = ffmpeg()
